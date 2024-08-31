@@ -8,7 +8,7 @@ import { StateMap, assert } from "@proto-kit/protocol";
 import { PublicKey, Field, Struct, Poseidon, Bool } from "o1js";
 import { UInt64 } from "@proto-kit/library";
 
-class SharingPermission extends Struct({
+export class SharingPermission extends Struct({
   owner: PublicKey,
   accessor: PublicKey,
   expirationTime: UInt64,

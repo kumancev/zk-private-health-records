@@ -7,7 +7,7 @@ import {
 import { StateMap, assert } from "@proto-kit/protocol";
 import { Field, PublicKey, Struct, Poseidon } from "o1js";
 
-class EncryptedHealthRecord extends Struct({
+export class EncryptedHealthRecord extends Struct({
   encryptedData: Field,
   ownerPublicKey: PublicKey,
 }) {}
