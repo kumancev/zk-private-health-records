@@ -1,37 +1,20 @@
-import { runtimeModule, state, runtimeMethod, RuntimeModule } from "@proto-kit/module";
-import { StateMap, assert } from "@proto-kit/protocol";
-import { PublicKey, Field, Struct } from "o1js";
-
-class HealthRecordData extends Struct({
-  patientId: Field,
-  dataHash: Field,
-  lastUpdated: Field,
-}) {}
+import { runtimeModule, runtimeMethod, state, RuntimeModule } from '@proto-kit/module';
+import { assert, StateMap } from '@proto-kit/protocol';
+import { PublicKey, Field } from 'o1js';
 
 @runtimeModule()
-export class HealthRecord extends RuntimeModule<Record<string, never>> {
-  @state() public records = StateMap.from(PublicKey, HealthRecordData);
+export class HealthRecord extends RuntimeModule<unknown> {
+  @state() public records = StateMap.from(PublicKey, Field);
 
   @runtimeMethod()
-  public async addRecord(
-    patientKey: PublicKey,
-    recordData: HealthRecordData
-  ): Promise<void> {
-    await this.records.set(patientKey, recordData);
+  public async addRecord(patient: PublicKey, encryptedRecord: Field): Promise<void> {
+    await this.records.set(patient, encryptedRecord);
   }
 
   @runtimeMethod()
-  public async getRecord(patientKey: PublicKey) {
-    return await this.records.get(patientKey);
-  }
-
-  @runtimeMethod()
-  public async updateRecord(
-    patientKey: PublicKey,
-    newRecordData: HealthRecordData
-  ): Promise<void> {
-    const existingRecord = await this.records.get(patientKey);
-    assert(existingRecord.isSome, "Record does not exist");
-    await this.records.set(patientKey, newRecordData);
+  public async getRecord(patient: PublicKey): Promise<void> {
+    const existingRecord = await this.records.get(patient);
+    assert(existingRecord.isSome, "Record does not exist")
+    await this.records.get(patient);
   }
 }
