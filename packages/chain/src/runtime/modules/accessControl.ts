@@ -39,7 +39,10 @@ export class AccessControl extends RuntimeModule<unknown> {
     const currentAccess = await this.accessRights.get(accessKey);
 
     assert(currentAccess.isSome, "Access right does not exist");
-    assert(currentAccess.value.equals(Bool(true)), "Access was not previously granted");
+    assert(
+      currentAccess.value.equals(Bool(true)),
+      "Access was not previously granted"
+    );
 
     await this.accessRights.set(accessKey, Bool(false));
   }
@@ -51,6 +54,9 @@ export class AccessControl extends RuntimeModule<unknown> {
   ): Promise<Bool> {
     const accessKey = this.getAccessKey(owner, accessor);
     const hasAccess = await this.accessRights.get(accessKey);
-    return hasAccess.isSome.and(hasAccess.value);
+
+    assert(hasAccess.value.equals(Bool(true)), "Not accessed");
+
+    return hasAccess.isSome.and(hasAccess.value.equals(Bool(true)));
   }
 }

@@ -72,9 +72,9 @@ describe("AccessControl", () => {
     await checkRevokedTx.sign();
     await checkRevokedTx.send();
     const checkRevokedBlock = await appChain.produceBlock();
-    expect(checkRevokedBlock?.transactions[0].status.toBoolean()).toBe(true);
-    expect(checkRevokedBlock?.transactions[0].tx.isMessage.valueOf()).toBe(
-      false
+    expect(checkRevokedBlock?.transactions[0].status.toBoolean()).toBe(false);
+    expect(checkRevokedBlock?.transactions[0].statusMessage).toBe(
+      "Not accessed"
     );
   });
 
