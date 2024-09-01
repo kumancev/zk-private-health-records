@@ -1,6 +1,10 @@
 import { TestingAppChain } from "@proto-kit/sdk";
 import { method, PrivateKey } from "o1js";
 import { Balances } from "../../../src/runtime/modules/balances";
+import { HealthRecords } from "../../../src/runtime/modules/healthRecord";
+import { AccessControl } from "../../../src/runtime/modules/accessControl";
+import { SharingPermissions } from "../../../src/runtime/modules/sharingPermissions";
+import { EncryptionKeys } from "../../../src/runtime/modules/encryptionKeys";
 import { log } from "@proto-kit/common";
 import { BalancesKey, TokenId, UInt64 } from "@proto-kit/library";
 
@@ -10,6 +14,10 @@ describe("balances", () => {
   it("should demonstrate how balances work", async () => {
     const appChain = TestingAppChain.fromRuntime({
       Balances,
+      HealthRecords,
+      AccessControl,
+      SharingPermissions,
+      EncryptionKeys,
     });
 
     appChain.configurePartial({
@@ -17,6 +25,10 @@ describe("balances", () => {
         Balances: {
           totalSupply: UInt64.from(10000),
         },
+        HealthRecords: {},
+        AccessControl: {},
+        SharingPermissions: {},
+        EncryptionKeys: {},
       },
     });
 

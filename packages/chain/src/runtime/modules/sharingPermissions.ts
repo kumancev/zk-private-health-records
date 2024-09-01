@@ -29,19 +29,26 @@ export class SharingPermissions extends RuntimeModule<unknown> {
   @runtimeMethod()
   public async createPermission(permission: SharingPermission) {
     const permissionHash = Poseidon.hash(permission.toFields());
-    this.permissions.set(permissionHash, Bool(true));
+    await this.permissions.set(permissionHash, Bool(true));
   }
 
   @runtimeMethod()
   public async verifyPermission(permission: SharingPermission): Promise<Bool> {
     const permissionHash = Poseidon.hash(permission.toFields());
     const isValid = await this.permissions.get(permissionHash);
-    return isValid.isSome ? isValid.value : Bool(false);
+
+    assert(isValid.isSome, "Access right or permission does not exist");
+    assert(
+      isValid.value.equals(Bool(true)),
+      "Permission is not valid or has been revoked"
+    );
+
+    return isValid.isSome.and(isValid.value);
   }
 
   @runtimeMethod()
   public async revokePermission(permission: SharingPermission) {
     const permissionHash = Poseidon.hash(permission.toFields());
-    this.permissions.set(permissionHash, Bool(false));
+    await this.permissions.set(permissionHash, Bool(false));
   }
 }
