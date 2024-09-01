@@ -1,5 +1,7 @@
 "use client";
 import { Faucet } from "@/components/faucet";
+import { HealthRecordsManage } from "@/components/healthRecordsManage";
+import { AccessControlManage } from "@/components/accessControlManage";
 import { useFaucet } from "@/lib/stores/balances";
 import { useWalletStore } from "@/lib/stores/wallet";
 
@@ -18,6 +20,16 @@ export default function Home() {
             loading={false}
           />
         </div>
+        <HealthRecordsManage
+          wallet={wallet.wallet}
+          onConnectWallet={wallet.connectWallet}
+          loading={false}
+        />
+        <AccessControlManage
+          wallet={wallet.wallet}
+          onConnectWallet={wallet.connectWallet}
+          loading={false}
+        />
       </div>
     </div>
   );
