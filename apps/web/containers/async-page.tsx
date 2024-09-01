@@ -11,7 +11,7 @@ export default function Home() {
 
   return (
     <div className="mx-auto -mt-32 h-full pt-16">
-      <div className="flex h-full w-full items-center justify-center pt-16">
+      <div className="flex h-full w-full flex-col items-center justify-center pt-16 gap-8">
         <div className="flex basis-4/12 flex-col items-center justify-center 2xl:basis-3/12">
           <Faucet
             wallet={wallet.wallet}
@@ -20,16 +20,18 @@ export default function Home() {
             loading={false}
           />
         </div>
-        <HealthRecordsManage
-          wallet={wallet.wallet}
-          onConnectWallet={wallet.connectWallet}
-          loading={false}
-        />
-        <AccessControlManage
-          wallet={wallet.wallet}
-          onConnectWallet={wallet.connectWallet}
-          loading={false}
-        />
+        <div className="flex flex-row items-center justify-center gap-8">
+          <HealthRecordsManage
+            wallet={wallet.wallet}
+            onConnectWallet={wallet.connectWallet}
+            loading={false}
+          />
+          <AccessControlManage
+            wallet={wallet.wallet}
+            onConnectWallet={wallet.connectWallet}
+            loading={false}
+          />
+        </div>
       </div>
     </div>
   );
