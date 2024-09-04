@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { useClientStore } from "./client";
+import { useChainStore } from "./chain";
 import { PublicKey, Bool } from "o1js";
 
 export interface AccessControlState {
@@ -66,16 +67,44 @@ export const useAccessControlStore = create<
         state.loading = true;
       });
 
-      const accessControl = client.runtime.resolve("AccessControl");
-      const hasAccess = await accessControl.checkAccess(owner, accessor);
+      try {
+        const tx = await client.transaction(owner, async () => {
+          const accessControl = client.runtime.resolve("AccessControl");
+          await accessControl.checkAccess(owner, accessor);
+        });
 
-      console.log("Access check result:", hasAccess.toBoolean());
+        await tx.sign();
+        await tx.send();
 
-      set((state) => {
-        state.loading = false;
-        state.accessRights[`${owner.toBase58()}-${accessor.toBase58()}`] =
-          hasAccess.toBoolean();
-      });
+        await new Promise((resolve) => setTimeout(resolve, 2000)); //TODO: Wait when new block is created. But is not a better way
+
+        const chain = useChainStore.getState();
+        if (!chain) return;
+
+        const txs = await chain.block?.txs;
+
+        if (txs && txs.length > 0) {
+          set((state) => {
+            state.loading = false;
+            state.accessRights[`${owner.toBase58()}-${accessor.toBase58()}`] =
+              txs[0].status;
+          });
+        } else {
+          console.error("No transactions found in the block");
+          set((state) => {
+            state.loading = false;
+            state.accessRights[`${owner.toBase58()}-${accessor.toBase58()}`] =
+              false;
+          });
+        }
+      } catch (error) {
+        console.error("Error checking access:", error);
+        set((state) => {
+          state.loading = false;
+          state.accessRights[`${owner.toBase58()}-${accessor.toBase58()}`] =
+            false;
+        });
+      }
     },
   })),
 );

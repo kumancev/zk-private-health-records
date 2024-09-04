@@ -57,6 +57,6 @@ export class AccessControl extends RuntimeModule<unknown> {
 
     assert(hasAccess.value.equals(Bool(true)), "Not accessed");
 
-    return hasAccess.isSome.and(hasAccess.value.equals(Bool(true)));
+    return hasAccess.value;
   }
 }
