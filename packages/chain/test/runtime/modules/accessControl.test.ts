@@ -4,7 +4,6 @@ import { AccessControl } from "../../../src/runtime/modules/accessControl";
 import { Balances } from "../../../src/runtime/modules/balances";
 import { HealthRecords } from "../../../src/runtime/modules/healthRecord";
 import { SharingPermissions } from "../../../src/runtime/modules/sharingPermissions";
-import { EncryptionKeys } from "../../../src/runtime/modules/encryptionKeys";
 import { UInt64 } from "@proto-kit/library";
 
 describe("AccessControl", () => {
@@ -21,7 +20,6 @@ describe("AccessControl", () => {
       HealthRecords,
       AccessControl,
       SharingPermissions,
-      EncryptionKeys,
     });
     appChain.configurePartial({
       Runtime: {
@@ -31,7 +29,6 @@ describe("AccessControl", () => {
         HealthRecords: {},
         AccessControl: {},
         SharingPermissions: {},
-        EncryptionKeys: {},
       },
     });
     await appChain.start();

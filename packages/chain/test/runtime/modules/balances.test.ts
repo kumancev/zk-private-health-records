@@ -4,7 +4,6 @@ import { Balances } from "../../../src/runtime/modules/balances";
 import { HealthRecords } from "../../../src/runtime/modules/healthRecord";
 import { AccessControl } from "../../../src/runtime/modules/accessControl";
 import { SharingPermissions } from "../../../src/runtime/modules/sharingPermissions";
-import { EncryptionKeys } from "../../../src/runtime/modules/encryptionKeys";
 import { log } from "@proto-kit/common";
 import { BalancesKey, TokenId, UInt64 } from "@proto-kit/library";
 
@@ -17,7 +16,6 @@ describe("balances", () => {
       HealthRecords,
       AccessControl,
       SharingPermissions,
-      EncryptionKeys,
     });
 
     appChain.configurePartial({
@@ -28,7 +26,6 @@ describe("balances", () => {
         HealthRecords: {},
         AccessControl: {},
         SharingPermissions: {},
-        EncryptionKeys: {},
       },
     });
 

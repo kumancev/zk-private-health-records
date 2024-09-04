@@ -8,7 +8,6 @@ import { UInt64 } from "@proto-kit/library";
 import { Balances } from "../../../src/runtime/modules/balances";
 import { HealthRecords } from "../../../src/runtime/modules/healthRecord";
 import { AccessControl } from "../../../src/runtime/modules/accessControl";
-import { EncryptionKeys } from "../../../src/runtime/modules/encryptionKeys";
 
 describe("SharingPermissions", () => {
   let appChain: any;
@@ -24,7 +23,6 @@ describe("SharingPermissions", () => {
       HealthRecords,
       AccessControl,
       SharingPermissions,
-      EncryptionKeys,
     });
 
     appChain.configurePartial({
@@ -35,7 +33,6 @@ describe("SharingPermissions", () => {
         HealthRecords: {},
         AccessControl: {},
         SharingPermissions: {},
-        EncryptionKeys: {},
       },
     });
     await appChain.start();
