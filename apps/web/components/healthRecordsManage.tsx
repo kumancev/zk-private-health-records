@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useHealthRecordsStore } from "../lib/stores/healtRecords";
-import { PublicKey, Field } from "o1js";
-// import { EncryptedHealthRecord } from "chain/src/runtime/modules/healthRecord";
+import { PublicKey, Field, CircuitString } from "o1js";
 
 export interface HealthRecordsManageProps {
   wallet?: string;
@@ -28,7 +27,8 @@ export function HealthRecordsManage({
   const handleStoreRecord = async () => {
     if (wallet) {
       const ownerPublicKey = PublicKey.fromBase58(wallet);
-      const encryptedData = Field(recordData);
+      const data = CircuitString.fromString(recordData);
+      const encryptedData = Field(data.hash());
       const record = {
         encryptedData,
         ownerPublicKey,
