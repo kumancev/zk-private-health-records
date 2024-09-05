@@ -5,25 +5,27 @@ import {
   runtimeModule,
 } from "@proto-kit/module";
 import { StateMap, assert } from "@proto-kit/protocol";
-import { Field, PublicKey, Struct, Poseidon } from "o1js";
+import { Field, PublicKey, Struct, CircuitString } from "o1js";
 
 export class EncryptedHealthRecord extends Struct({
-  encryptedData: Field,
+  encryptedData: CircuitString,
   ownerPublicKey: PublicKey,
 }) {}
 
 @runtimeModule()
 export class HealthRecords extends RuntimeModule<unknown> {
-  @state() public records = StateMap.from<PublicKey, Field>(PublicKey, Field);
+  @state() public records = StateMap.from<PublicKey, CircuitString>(
+    PublicKey,
+    CircuitString
+  );
 
   @runtimeMethod()
   public async storeRecord(record: EncryptedHealthRecord) {
-    const recordHash = Poseidon.hash(record.encryptedData.toFields());
-    await this.records.set(record.ownerPublicKey, recordHash);
+    await this.records.set(record.ownerPublicKey, record.encryptedData);
   }
 
   @runtimeMethod()
-  public async getRecord(ownerPublicKey: PublicKey): Promise<Field> {
+  public async getRecord(ownerPublicKey: PublicKey): Promise<CircuitString> {
     const record = await this.records.get(ownerPublicKey);
     assert(record.isSome, "Record not found");
     return record.value;

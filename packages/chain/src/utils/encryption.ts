@@ -1,17 +1,26 @@
-import { PrivateKey, Field, Encoding, Poseidon, CircuitString } from "o1js";
+import * as crypto from "node:crypto";
 
-export class EncryptionUtils {
-  async encrypt(data: string): Promise<Field> {
-    const circuitString = CircuitString.fromString(data);
-    const recordHash = Poseidon.hash(circuitString.hash().toFields());
+export function encrypt(data: string, key: string): string {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(
+    "aes-256-cbc",
+    Buffer.from(key, "hex"),
+    iv
+  );
+  let encrypted = cipher.update(data, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return iv.toString("hex") + ":" + encrypted;
+}
 
-    return recordHash;
-  }
-
-  async decrypt(
-    ownerPrivateKey: PrivateKey,
-    encryptedData: Field[]
-  ): Promise<any> {
-    // TODO: need to implement
-  }
+export function decrypt(encryptedData: string, key: string): string {
+  const [ivHex, encryptedHex] = encryptedData.split(":");
+  const iv = Buffer.from(ivHex, "hex");
+  const decipher = crypto.createDecipheriv(
+    "aes-256-cbc",
+    Buffer.from(key, "hex"),
+    iv
+  );
+  let decrypted = decipher.update(encryptedHex, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
 }

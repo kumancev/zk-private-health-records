@@ -1,5 +1,7 @@
+import * as crypto from "node:crypto";
 import { TestingAppChain } from "@proto-kit/sdk";
-import { PrivateKey, Poseidon, CircuitString } from "o1js";
+import { UInt64 } from "@proto-kit/library";
+import { PrivateKey, CircuitString } from "o1js";
 import {
   HealthRecords,
   EncryptedHealthRecord,
@@ -7,13 +9,14 @@ import {
 import { Balances } from "../../../src/runtime/modules/balances";
 import { AccessControl } from "../../../src/runtime/modules/accessControl";
 import { SharingPermissions } from "../../../src/runtime/modules/sharingPermissions";
-import { UInt64 } from "@proto-kit/library";
+import { encrypt, decrypt } from "../../../src/utils/encryption";
 
 describe("HealthRecords", () => {
   let appChain: any;
   let healthRecords: HealthRecords;
   const alicePrivateKey = PrivateKey.random();
   const alice = alicePrivateKey.toPublicKey();
+  const encryptionKey = crypto.randomBytes(32).toString("hex"); // 256-bit key
 
   beforeAll(async () => {
     appChain = TestingAppChain.fromRuntime({
@@ -38,11 +41,11 @@ describe("HealthRecords", () => {
     healthRecords = appChain.runtime.resolve("HealthRecords");
   });
 
-  it("should store and retrieve a health record", async () => {
-    const data = CircuitString.fromString("Hello there!");
-    const encryptedData = data.hash();
+  it("should store, retrieve, and decrypt a health record", async () => {
+    const originalData = "Confidential health information";
+    const encryptedData = encrypt(originalData, encryptionKey);
     const record = new EncryptedHealthRecord({
-      encryptedData,
+      encryptedData: CircuitString.fromString(encryptedData),
       ownerPublicKey: alice,
     });
 
@@ -56,11 +59,18 @@ describe("HealthRecords", () => {
 
     expect(block?.transactions[0].status.toBoolean()).toBe(true);
 
-    const retrievedRecordHash =
+    const retrievedEncryptedRecord =
       await appChain.query.runtime.HealthRecords.records.get(alice);
-    const expectedHash = Poseidon.hash(data.hash().toFields());
 
-    expect(retrievedRecordHash?.toBigInt()).toBe(expectedHash.toBigInt());
+    expect(retrievedEncryptedRecord).toBeDefined();
+
+    if (retrievedEncryptedRecord) {
+      const decryptedData = decrypt(
+        retrievedEncryptedRecord.toString(),
+        encryptionKey
+      );
+      expect(decryptedData).toBe(originalData);
+    }
   });
 
   it("should get `undefined` to retrieve a non-existent record", async () => {
