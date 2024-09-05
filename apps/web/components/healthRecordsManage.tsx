@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useHealthRecordsStore } from "../lib/stores/healtRecords";
-import { PublicKey, Field, CircuitString } from "o1js";
+import { PublicKey } from "o1js";
 
 export interface HealthRecordsManageProps {
   wallet?: string;
@@ -27,13 +27,11 @@ export function HealthRecordsManage({
   const handleStoreRecord = async () => {
     if (wallet) {
       const ownerPublicKey = PublicKey.fromBase58(wallet);
-      const data = CircuitString.fromString(recordData);
-      const encryptedData = Field(data.hash());
       const record = {
-        encryptedData,
         ownerPublicKey,
       };
-      await healthRecords.storeRecord(record);
+      await healthRecords.storeRecord(record, recordData);
+      setRecordData("");
     }
   };
 
@@ -61,7 +59,7 @@ export function HealthRecordsManage({
           </div>
           <div>
             <h3 className="text-lg font-medium text-gray-900">
-              Stored Records:
+              Stored Records (Decrypted):
             </h3>
             <p className="mt-2 text-sm text-gray-600">
               {healthRecords.records[wallet]}
