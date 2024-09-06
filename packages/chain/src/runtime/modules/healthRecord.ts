@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {
   RuntimeModule,
   runtimeMethod,
@@ -6,6 +7,8 @@ import {
 } from "@proto-kit/module";
 import { StateMap, assert } from "@proto-kit/protocol";
 import { Field, PublicKey, Struct, CircuitString } from "o1js";
+import { AccessControl } from "./accessControl";
+import { inject } from "tsyringe";
 
 export class EncryptedHealthRecord extends Struct({
   encryptedData: CircuitString,
@@ -19,11 +22,21 @@ export class HealthRecords extends RuntimeModule<unknown> {
     EncryptedHealthRecord
   );
 
+  public constructor(
+    @inject("AccessControl") public accessControl: AccessControl
+  ) {
+    super();
+  }
+
   @runtimeMethod()
   public async storeOrUpdateRecord(
     ownerPublicKey: PublicKey,
     encryptedData: CircuitString
   ) {
+    assert(
+      this.transaction.sender.value.equals(ownerPublicKey),
+      "Only the owner can store or update their record"
+    );
     const newRecord = new EncryptedHealthRecord({
       encryptedData,
       isDeleted: Field(0), // 0 represents false
@@ -33,6 +46,10 @@ export class HealthRecords extends RuntimeModule<unknown> {
 
   @runtimeMethod()
   public async deleteRecord(ownerPublicKey: PublicKey) {
+    assert(
+      this.transaction.sender.value.equals(ownerPublicKey),
+      "Only the owner can delete their record"
+    );
     const existingRecord = await this.records.get(ownerPublicKey);
     assert(existingRecord.isSome, "Record not found");
 
@@ -47,6 +64,17 @@ export class HealthRecords extends RuntimeModule<unknown> {
   public async getRecord(
     ownerPublicKey: PublicKey
   ): Promise<EncryptedHealthRecord> {
+    const sender = this.transaction.sender.value;
+
+    // Check if the sender is the owner or has access
+    const hasAccess =
+      sender.equals(ownerPublicKey) ||
+      (
+        await this.accessControl.checkAccess(ownerPublicKey, sender)
+      ).toBoolean();
+
+    assert(hasAccess, "Access denied");
+
     const record = await this.records.get(ownerPublicKey);
     assert(record.isSome, "Record not found");
     return record.value;
