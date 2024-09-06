@@ -24,14 +24,18 @@ export function HealthRecordsManage({
     }
   }, [wallet]);
 
-  const handleStoreRecord = async () => {
+  const handleStoreOrUpdateRecord = async () => {
     if (wallet) {
       const ownerPublicKey = PublicKey.fromBase58(wallet);
-      const record = {
-        ownerPublicKey,
-      };
-      await healthRecords.storeRecord(record, recordData);
+      await healthRecords.storeOrUpdateRecord(ownerPublicKey, recordData);
       setRecordData("");
+    }
+  };
+
+  const handleDeleteRecord = async () => {
+    if (wallet) {
+      const ownerPublicKey = PublicKey.fromBase58(wallet);
+      await healthRecords.deleteRecord(ownerPublicKey);
     }
   };
 
@@ -51,19 +55,31 @@ export function HealthRecordsManage({
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
             />
             <button
-              onClick={handleStoreRecord}
+              onClick={handleStoreOrUpdateRecord}
               className="mt-2 inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
-              Store Record
+              Store/Update Record
+            </button>
+            <button
+              onClick={handleDeleteRecord}
+              className="ml-2 mt-2 inline-flex items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            >
+              Delete Record
             </button>
           </div>
           <div>
             <h3 className="text-lg font-medium text-gray-900">
-              Stored Records (Decrypted):
+              Stored Record (Decrypted):
             </h3>
-            <p className="mt-2 text-sm text-gray-600">
-              {healthRecords.records[wallet]}
-            </p>
+            {healthRecords.records[wallet] && (
+              <div className="mt-2 text-sm text-gray-600">
+                <p>Data: {healthRecords.records[wallet].data}</p>
+                <p>
+                  Deleted:{" "}
+                  {healthRecords.records[wallet].isDeleted ? "Yes" : "No"}
+                </p>
+              </div>
+            )}
           </div>
         </>
       ) : (
