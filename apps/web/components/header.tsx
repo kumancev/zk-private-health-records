@@ -25,7 +25,7 @@ export default function Header({
   blockHeight,
 }: HeaderProps) {
   return (
-    <div className="flex items-center justify-between border-b p-2 shadow-sm">
+    <div className="flex items-center justify-between border-b p-2 shadow-sm bg-green-400">
       <div className="container flex">
         <div className="flex basis-6/12 items-center justify-start">
           <Image

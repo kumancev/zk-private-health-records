@@ -76,7 +76,7 @@ export const useAccessControlStore = create<
         await tx.sign();
         await tx.send();
 
-        await new Promise((resolve) => setTimeout(resolve, 2000)); //TODO: Wait when new block is created. But is not a better way
+        await new Promise((resolve) => setTimeout(resolve, 2500)); //TODO: Wait when new block is created. But is not a better way
 
         const chain = useChainStore.getState();
         if (!chain) return;
